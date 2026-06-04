@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>🍷 Mosella 2025</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{touch-action:pan-y;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F8F5F1;color:#1C1C1E;padding-bottom:4rem;font-size:15px}
+
+.cover{background:#6B1A2E;padding:2.2rem 1.2rem 1.8rem;position:relative;overflow:hidden}
+.cb1{position:absolute;top:-50px;right:-30px;width:170px;height:170px;border-radius:50%;background:rgba(255,255,255,.05);pointer-events:none}
+.cb2{position:absolute;bottom:-40px;left:-20px;width:120px;height:120px;border-radius:50%;background:rgba(196,134,10,.18);pointer-events:none}
+.c-eye{font-size:11px;letter-spacing:.15em;color:rgba(255,255,255,.55);text-transform:uppercase;margin-bottom:.5rem;position:relative}
+.c-title{font-size:30px;font-weight:700;color:#fff;line-height:1.1;margin-bottom:.3rem;position:relative}
+.c-title em{color:#F5C97E;font-style:normal}
+.c-sub{font-size:13px;color:rgba(255,255,255,.65);margin-bottom:1.1rem;position:relative}
+.c-div{width:36px;height:2px;background:#C4860A;border-radius:2px;margin-bottom:1.1rem;position:relative}
+.cpills{display:flex;gap:7px;flex-wrap:wrap;position:relative}
+.cpill{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:5px 12px;font-size:12px;color:rgba(255,255,255,.9)}
+
+.sec{padding:1.2rem 1rem 0}
+.sec-lbl{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#8E8E93;margin-bottom:10px}
+
+.dtabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px}
+.dtab{background:#fff;border:1px solid rgba(0,0,0,.09);border-radius:10px;padding:9px 4px;text-align:center;font-size:12px;color:#8E8E93;cursor:pointer;-webkit-user-select:none;user-select:none;touch-action:manipulation}
+.dtab b{display:block;font-size:13px;font-weight:600;margin-bottom:1px;color:#1C1C1E}
+.dtab.on{background:#6B1A2E;border-color:#6B1A2E;color:#fff}
+.dtab.on b{color:#fff}
+.day{display:none}.day.on{display:block}
+
+.card{background:#fff;border-radius:13px;border:1.5px solid rgba(0,0,0,.08);margin-bottom:7px;overflow:hidden}
+.card.on{border-color:#6B1A2E}
+.card-h{display:flex;align-items:center;gap:10px;padding:13px 14px;cursor:pointer;min-height:60px;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+.ct{font-size:11px;color:#8E8E93;min-width:37px}
+.cico{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;pointer-events:none}
+.ci-w{background:#FDEEF2}.ci-f{background:#E1F5EE}.ci-h{background:#FDF3E0}.ci-d{background:#EEF0FD}.ci-p{background:#F2F2F0}
+.cinfo{flex:1;min-width:0;pointer-events:none}
+.cn{font-size:13px;font-weight:600;color:#1C1C1E;line-height:1.3}
+.cl{font-size:11px;color:#8E8E93;margin-top:2px}
+.carr{font-size:20px;color:#C7C7CC;transition:transform .22s;line-height:1;flex-shrink:0;pointer-events:none}
+.card-b{display:none;padding:0 14px 14px 61px;border-top:1px solid rgba(0,0,0,.06)}
+.card-b.on{display:block}
+.cnote{font-size:13px;color:#636366;line-height:1.55;margin:10px 0 8px}
+.tag{display:inline-flex;font-size:11px;font-weight:500;padding:3px 9px;border-radius:20px;margin:2px 3px 4px 0}
+.tw{background:#FDF3E0;color:#92400E}.tok{background:#E1F5EE;color:#065F46}.ti{background:#E6F1FB;color:#1E40AF}
+.lnk{display:flex;align-items:center;gap:6px;font-size:13px;color:#185FA5;text-decoration:none;padding:5px 0}
+
+.drv{display:flex;align-items:center;gap:8px;padding:2px 12px;margin:3px 0}
+.drv-l{flex:1;height:1px;background:rgba(0,0,0,.08)}
+.drv-b{background:#fff;border:1px solid rgba(0,0,0,.09);border-radius:20px;padding:7px 14px;font-size:11px;color:#636366;cursor:pointer;white-space:nowrap;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+.drv-b.on{background:#FDF3E0;border-color:#C4860A;color:#92400E;font-weight:600}
+
+.pv{background:#fff;border-radius:13px;border:1px solid rgba(0,0,0,.08);margin:0 1rem;overflow:hidden;display:none}
+.pv.on{display:block}
+.pv-head{padding:11px 14px 6px;border-bottom:1px solid rgba(0,0,0,.06)}
+.pv-name{font-size:14px;font-weight:600;color:#1C1C1E}
+.pv-loc{font-size:11px;color:#8E8E93;margin-top:2px}
+.pv-tabs{display:flex}
+.pv-tab{flex:1;padding:10px;font-size:12px;font-weight:500;text-align:center;cursor:pointer;color:#8E8E93;border-bottom:2px solid transparent;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+.pv-tab.on{color:#6B1A2E;border-bottom-color:#6B1A2E}
+.pv-pane{display:none}.pv-pane.on{display:block}
+#leafmap{height:230px;width:100%}
+.prow{display:flex;gap:8px;padding:10px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.prow::-webkit-scrollbar{display:none}
+.pthumb{flex-shrink:0;width:150px;height:110px;border-radius:10px;overflow:hidden;background:#F2F2F0}
+.pthumb img{width:100%;height:100%;object-fit:cover;display:block}
+.pcap{padding:0 14px 12px;font-size:11px;color:#8E8E93;line-height:1.45}
+.pno{padding:20px 14px;font-size:12px;color:#8E8E93;text-align:center}
+
+.urg{background:#fff;border-radius:13px;border:1px solid rgba(0,0,0,.08);margin-bottom:7px;overflow:hidden}
+.urg-h{display:flex;align-items:center;gap:11px;padding:14px 16px;cursor:pointer;min-height:54px;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+.udot{width:9px;height:9px;border-radius:50%;flex-shrink:0;pointer-events:none}
+.up1{background:#DC2626}.up2{background:#D97706}.up3{background:#2563EB}.up4{background:#059669}
+.utxt{flex:1;pointer-events:none}.uname{font-size:14px;font-weight:600;color:#1C1C1E}.usub{font-size:11px;color:#8E8E93;margin-top:1px}
+.uarr{font-size:20px;color:#C7C7CC;transition:transform .22s;line-height:1;pointer-events:none}
+.urg-b{display:none;border-top:1px solid rgba(0,0,0,.06)}.urg-b.on{display:block}
+.irow{display:flex;gap:10px;padding:8px 16px;border-bottom:1px solid rgba(0,0,0,.04);align-items:flex-start}
+.irow:last-child{border-bottom:none}
+.iico{font-size:13px;margin-top:1px;flex-shrink:0;width:18px}
+.ilbl{font-size:10px;color:#8E8E93;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
+.ival{font-size:13px;color:#1C1C1E}.ival a{color:#185FA5;text-decoration:none}
+.bdg{display:inline-block;font-size:11px;font-weight:500;padding:3px 9px;border-radius:20px;margin-top:3px}
+.bok{background:#ECFDF5;color:#065F46}.bno{background:#FEF2F2;color:#991B1B}
+
+.tips{background:#fff;border-radius:13px;border:1px solid rgba(0,0,0,.08);padding:15px;margin-top:8px}
+.tip{display:flex;gap:9px;font-size:13px;color:#636366;padding:5px 0;line-height:1.5}
+.footer{text-align:center;font-size:11px;color:#AEAEB2;padding:2rem 1rem .5rem}
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div class="cb1"></div><div class="cb2"></div>
+  <div class="c-eye">Mosella · Saar · 2025</div>
+  <div class="c-title">Wine Road <em>Trip</em></div>
+  <div class="c-sub">3 giorni · 5 cantine VDP · base Traben-Trarbach</div>
+  <div class="c-div"></div>
+  <div class="cpills">
+    <span class="cpill">✈ Ven 9:00 FRA</span>
+    <span class="cpill">🚗 Auto noleggio</span>
+    <span class="cpill">🏠 Traben-Trarbach</span>
+    <span class="cpill">✈ Dom 20:00 FRA</span>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sec-lbl">Itinerario — tocca una tappa 👆</div>
+  <div class="dtabs">
+    <div class="dtab on" id="dt0"><b>Venerdì</b>Saar + arrivo</div>
+    <div class="dtab"    id="dt1"><b>Sabato</b>Mittelmosel</div>
+    <div class="dtab"    id="dt2"><b>Domenica</b>Rientro</div>
+  </div>
+
+  <div class="day on" id="d0">
+    <div class="card" data-name="Frankfurt Airport" data-loc="Terminal 1–2, Frankfurt am Main" data-lat="50.0453" data-lon="8.5627" data-zoom="13" data-p0="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Frankfurt_Airport_aerial_view_2008.jpg/800px-Frankfurt_Airport_aerial_view_2008.jpg" data-p1="https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Frankfurt_Airport_Terminal_1_2012.jpg/800px-Frankfurt_Airport_Terminal_1_2012.jpg" data-cap="Frankfurt Airport T1–2. Enterprise aperto dalle 6:30.">
+      <div class="card-h"><span class="ct">9:00</span><div class="cico ci-d">🚗</div><div class="cinfo"><div class="cn">Ritiro auto — Frankfurt Airport</div><div class="cl">Terminal 1–2 · partenza per la Mosella</div></div><span class="carr">›</span></div>
+      <div class="card-b"><div class="cnote">A5 Sud → A61 → direzione Treviri. ~2h30 fino a Kanzem.</div></div>
+    </div>
+    <div class="drv"><div class="drv-l"></div><div class="drv-b" data-name="FRA → Von Othegraven" data-loc="A5 → A61 → B51 · ~2h30 · 200 km" data-lat="49.82" data-lon="7.45" data-zoom="8" data-p0="" data-cap="Da Frankfurt verso sud-ovest fino a Kanzem nella valle della Saar.">🚗 2h 30 · 200 km</div><div class="drv-l"></div></div>
+    <div class="card" data-name="Weingut von Othegraven" data-loc="Weinstraße 1, 54441 Kanzem (Saar)" data-lat="49.6705" data-lon="6.5779" data-zoom="15" data-p0="https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Kanzem_Weinlage.jpg/800px-Kanzem_Weinlage.jpg" data-p1="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Kanzemer_Altenberg.jpg/800px-Kanzemer_Altenberg.jpg" data-cap="Kanzem nella valle della Saar — Riesling minerali e tesi su ardesia.">
+      <div class="card-h"><span class="ct">11:30</span><div class="cico ci-w">🍷</div><div class="cinfo"><div class="cn">Von Othegraven</div><div class="cl">Kanzem · Saar · ~90 min</div></div><span class="carr">›</span></div>
+      <div class="card-b"><span class="tag tw">⚠ Prenota — Ven 9–17 / Sab 12–18</span><div class="cnote">Riesling della Saar eleganti e minerali. Villa storica con giardino inglese.</div><a class="lnk" href="tel:+496501150042">📞 +49 6501 150042</a><a class="lnk" href="https://www.von-othegraven.de" target="_blank">🌐 von-othegraven.de</a></div>
+    </div>
+    <div class="drv"><div class="drv-l"></div><div class="drv-b" data-name="Von Othegraven → Joh. Jos. Prüm" data-loc="B51 → B53 · ~50 min · 55 km" data-lat="49.80" data-lon="6.80" data-zoom="9" data-p0="" data-cap="Da Kanzem si risale la Mosella verso nord-est. Panorami bellissimi.">🚗 50 min · 55 km</div><div class="drv-l"></div></div>
+    <div class="card" data-name="Weingut Joh. Jos. Prüm" data-loc="Uferallee 19, 54470 Wehlen" data-lat="49.9415" data-lon="7.0460" data-zoom="15" data-p0="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Wehlen_Mosel.jpg/800px-Wehlen_Mosel.jpg" data-p1="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Wehlener_Sonnenuhr.jpg/800px-Wehlener_Sonnenuhr.jpg" data-cap="Wehlen sul Mosella — il Wehlener Sonnenuhr dall'altra sponda del fiume.">
+      <div class="card-h"><span class="ct">14:30</span><div class="cico ci-w">🍷</div><div class="cinfo"><div class="cn">Joh. Jos. Prüm</div><div class="cl">Wehlen · solo lun–ven ⚠ · ⭐ 4.7</div></div><span class="carr">›</span></div>
+      <div class="card-b"><span class="tag tw">⚠ Solo lun–ven — tappa obbligata venerdì</span><div class="cnote">Leggenda della Mosella. Wehlener Sonnenuhr tra i Riesling più grandi al mondo.</div><a class="lnk" href="tel:+4965313091">📞 +49 6531 3091</a><a class="lnk" href="https://www.jjpruem.com" target="_blank">🌐 jjpruem.com</a></div>
+    </div>
+    <div class="drv"><div class="drv-l"></div><div class="drv-b" data-name="Prüm → Traben-Trarbach" data-loc="B53 lungo il fiume · ~25 min · 22 km" data-lat="49.948" data-lon="7.088" data-zoom="11" data-p0="" data-cap="Lungo la B53 che costeggia il Mosella.">🚗 25 min · 22 km</div><div class="drv-l"></div></div>
+    <div class="card" data-name="Traben-Trarbach" data-loc="Traben-Trarbach, Mosella" data-lat="49.9553" data-lon="7.1304" data-zoom="14" data-p0="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Traben-Trarbach_moselle.jpg/800px-Traben-Trarbach_moselle.jpg" data-p1="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Trarbach_Mosel.JPG/800px-Trarbach_Mosel.JPG" data-cap="Traben-Trarbach — base per 3 notti sul Mosella.">
+      <div class="card-h"><span class="ct">17:00</span><div class="cico ci-h">🏠</div><div class="cinfo"><div class="cn">Check-in Traben-Trarbach</div><div class="cl">Base per 3 notti · lungofiume</div></div><span class="carr">›</span></div>
+      <div class="card-b"><div class="cnote">Paese bellissimo sul fiume. Cena sul lungomosella.</div></div>
+    </div>
+  </div>
+
+  <div class="day" id="d1">
+    <div class="card" data-name="VDP-Weingut Fritz Haag" data-loc="Dusemonder Str. 44, 54472 Brauneberg" data-lat="49.9076" data-lon="6.9856" data-zoom="15" data-p0="https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/Brauneberger_Juffer_Sonnenuhr.jpg/800px-Brauneberger_Juffer_Sonnenuhr.jpg" data-p1="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Brauneberg_Mosel.jpg/800px-Brauneberg_Mosel.jpg" data-cap="Brauneberg e il Brauneberger Juffer — uno dei vigneti più pregiati.">
+      <div class="card-h"><span class="ct">10:00</span><div class="cico ci-w">🍷</div><div class="cinfo"><div class="cn">VDP-Weingut Fritz Haag</div><div class="cl">Brauneberg · ⭐ 4.9 il migliore</div></div><span class="carr">›</span></div>
+      <div class="card-b"><span class="tag ti">Prenota: info@weingut-fritz-haag.de</span><div class="cnote">Riesling GG dal Brauneberger Juffer con vista panoramica sui vigneti.</div><a class="lnk" href="mailto:info@weingut-fritz-haag.de">✉️ info@weingut-fritz-haag.de</a><a class="lnk" href="tel:+496534410">📞 +49 6534 410</a></div>
+    </div>
+    <div class="drv"><div class="drv-l"></div><div class="drv-b" data-name="Fritz Haag → Bernkastel" data-loc="B53 · ~15 min · 12 km" data-lat="49.909" data-lon="7.027" data-zoom="12" data-p0="" data-cap="Da Brauneberg a Bernkastel-Kues.">🚗 15 min · 12 km</div><div class="drv-l"></div></div>
+    <div class="card" data-name="Bernkastel-Kues — pranzo" data-loc="Marktplatz, 54470 Bernkastel-Kues" data-lat="49.9125" data-lon="7.0600" data-zoom="15" data-p0="https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Bernkastel-Kues_Marktplatz.jpg/800px-Bernkastel-Kues_Marktplatz.jpg" data-p1="https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/BernkastelKues-MoselBridge.jpg/800px-BernkastelKues-MoselBridge.jpg" data-cap="Il Marktplatz medievale di Bernkastel-Kues.">
+      <div class="card-h"><span class="ct">12:00</span><div class="cico ci-f">🍽</div><div class="cinfo"><div class="cn">Pranzo a Bernkastel-Kues</div><div class="cl">Centro medievale · 15 min da Brauneberg</div></div><span class="carr">›</span></div>
+      <div class="card-b"><div class="cnote">Centro medievale meraviglioso. Flammkuchen, Zander e carpa. Passeggiata sul Marktplatz.</div></div>
+    </div>
+    <div class="drv"><div class="drv-l"></div><div class="drv-b" data-name="Bernkastel → Dr. Loosen" data-loc="B53 · ~5 min · 3 km" data-lat="49.918" data-lon="7.065" data-zoom="13" data-p0="" data-cap="Dr. Loosen è appena fuori Bernkastel.">🚗 5 min · 3 km</div><div class="drv-l"></div></div>
+    <div class="card" data-name="Weingut Dr. Loosen" data-loc="St. Johannishof, B53, Bernkastel-Kues" data-lat="49.9236" data-lon="7.0698" data-zoom="15" data-p0="https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Erdener_Treppchen.jpg/800px-Erdener_Treppchen.jpg" data-p1="https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Mosel_bei_Bernkastel.jpg/800px-Mosel_bei_Bernkastel.jpg" data-cap="Vigne centenarie non innestate su ardesia blu.">
+      <div class="card-h"><span class="ct">13:30</span><div class="cico ci-w">🍷</div><div class="cinfo"><div class="cn">Weingut Dr. Loosen</div><div class="cl">Bernkastel · ⭐ 4.6 fama mondiale</div></div><span class="carr">›</span></div>
+      <div class="card-b"><span class="tag ti">Prenota: info@drloosen.de</span><div class="cnote">Riesling da vigne centenarie non innestate. Ernst Loosen è una leggenda mondiale.</div><a class="lnk" href="mailto:info@drloosen.de">✉️ info@drloosen.de</a><a class="lnk" href="tel:+4965313426">📞 +49 6531 3426</a></div>
+    </div>
+    <div class="drv"><div class="drv-l"></div><div class="drv-b" data-name="Dr. Loosen → Markus Molitor" data-loc="B53 · ~10 min · 8 km" data-lat="49.937" data-lon="7.009" data-zoom="12" data-p0="" data-cap="B53 verso Zeltingen-Rachtig.">🚗 10 min · 8 km</div><div class="drv-l"></div></div>
+    <div class="card" data-name="Weingut Markus Molitor" data-loc="Klosterberg, 54492 Zeltingen-Rachtig" data-lat="49.9521" data-lon="6.9986" data-zoom="15" data-p0="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Zeltingen-Rachtig_Mosel.jpg/800px-Zeltingen-Rachtig_Mosel.jpg" data-p1="https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Zeltinger_Sonnenuhr.jpg/800px-Zeltinger_Sonnenuhr.jpg" data-cap="Zeltingen-Rachtig e il vigneto Zeltinger Sonnenuhr.">
+      <div class="card-h"><span class="ct">15:30</span><div class="cico ci-w">🍷</div><div class="cinfo"><div class="cn">Weingut Markus Molitor</div><div class="cl">Zeltingen · aperto 7/7 · ⭐ 4.6</div></div><span class="carr">›</span></div>
+      <div class="card-b"><span class="tag tok">✓ Aperta ogni giorno 10–17</span><div class="cnote">Gamma enorme: secchi, dolci e Pinot Nero. Degustazione 14 vini ~20€.</div><a class="lnk" href="tel:+496532954000">📞 +49 6532 954000</a><a class="lnk" href="https://markusmolitor.com" target="_blank">🌐 markusmolitor.com</a></div>
+    </div>
+    <div class="drv"><div class="drv-l"></div><div class="drv-b" data-name="Molitor → Traben-Trarbach" data-loc="B53 · ~15 min · 11 km" data-lat="49.953" data-lon="7.064" data-zoom="12" data-p0="" data-cap="Rientro lungo il fiume.">🚗 15 min · 11 km</div><div class="drv-l"></div></div>
+    <div class="card" data-name="Traben-Trarbach" data-loc="Traben-Trarbach, Mosella" data-lat="49.9553" data-lon="7.1304" data-zoom="14" data-p0="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Traben-Trarbach_moselle.jpg/800px-Traben-Trarbach_moselle.jpg" data-p1="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Trarbach_Mosel.JPG/800px-Trarbach_Mosel.JPG" data-cap="Serata libera a Traben-Trarbach.">
+      <div class="card-h"><span class="ct">17:30</span><div class="cico ci-h">🏠</div><div class="cinfo"><div class="cn">Rientro Traben-Trarbach</div><div class="cl">Cena libera · 15 min da Zeltingen</div></div><span class="carr">›</span></div>
+      <div class="card-b"><div class="cnote">Aperitivo e cena sul lungofiume.</div></div>
+    </div>
+  </div>
+
+  <div class="day" id="d2">
+    <div class="card" data-name="Traben-Trarbach — mattina" data-loc="Traben-Trarbach, Mosella" data-lat="49.9553" data-lon="7.1304" data-zoom="14" data-p0="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Traben-Trarbach_moselle.jpg/800px-Traben-Trarbach_moselle.jpg" data-p1="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Trarbach_Mosel.JPG/800px-Trarbach_Mosel.JPG" data-cap="Ultima mattina — mercatino e acquisti finali.">
+      <div class="card-h"><span class="ct">9:00</span><div class="cico ci-h">🏠</div><div class="cinfo"><div class="cn">Mattinata libera a Traben</div><div class="cl">Check-out · acquisti · lungofiume</div></div><span class="carr">›</span></div>
+      <div class="card-b"><div class="cnote">Colazione, mercatino domenicale, ultimi acquisti. Imballare bene le bottiglie!</div></div>
+    </div>
+    <div class="drv"><div class="drv-l"></div><div class="drv-b" data-name="Traben → Frankfurt Airport" data-loc="A1 → A61 → A3 · ~2h45 · 220 km" data-lat="49.97" data-lon="7.85" data-zoom="8" data-p0="" data-cap="Partire max 13:30. Domenica traffico intenso.">🚗 2h 45 · 220 km · partire ≤13:30</div><div class="drv-l"></div></div>
+    <div class="card" data-name="Frankfurt Airport" data-loc="Terminal 1–2 · Volo ore 20:00" data-lat="50.0453" data-lon="8.5627" data-zoom="13" data-p0="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Frankfurt_Airport_aerial_view_2008.jpg/800px-Frankfurt_Airport_aerial_view_2008.jpg" data-p1="https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Frankfurt_Airport_Terminal_1_2012.jpg/800px-Frankfurt_Airport_Terminal_1_2012.jpg" data-cap="Frankfurt Airport T1–2. Volo 20:00 — 3h30 di margine.">
+      <div class="card-h"><span class="ct">16:30</span><div class="cico ci-p">✈</div><div class="cinfo"><div class="cn">Frankfurt Airport · riconsegna</div><div class="cl">Volo 20:00 · 3h30 di margine ✓</div></div><span class="carr">›</span></div>
+      <div class="card-b"><span class="tag tok">✓ 3h30 di margine</span><div class="cnote">Riconsegna al T1–2. Fare il pieno prima.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- PREVIEW MAPPA + FOTO -->
+<div id="pv" class="pv" style="margin-top:1rem">
+  <div class="pv-head">
+    <div class="pv-name" id="pvName"></div>
+    <div class="pv-loc"  id="pvLoc"></div>
+  </div>
+  <div class="pv-tabs">
+    <div class="pv-tab on" id="ptab-map">🗺 Mappa</div>
+    <div class="pv-tab"    id="ptab-photos">📸 Foto</div>
+  </div>
+  <div class="pv-pane on" id="ppane-map"><div id="leafmap"></div></div>
+  <div class="pv-pane"    id="ppane-photos">
+    <div class="prow" id="prow"></div>
+    <div class="pcap" id="pcap"></div>
+  </div>
+</div>
+
+<!-- AZIONI URGENTI -->
+<div class="sec" style="margin-top:1.4rem">
+  <div class="sec-lbl">⚡ Da fare subito</div>
+
+  <div class="urg"><div class="urg-h"><div class="udot up1"></div><div class="utxt"><div class="uname">Joh. Jos. Prüm</div><div class="usub">Priorità 1 · solo lun–ven · venerdì ~14:30</div></div><div class="uarr">›</div></div>
+    <div class="urg-b">
+      <div class="irow"><span class="iico">📍</span><div><div class="ilbl">Dove</div><div class="ival">Uferallee 19, Bernkastel-Kues</div></div></div>
+      <div class="irow"><span class="iico">🗓</span><div><div class="ilbl">Apertura</div><div class="ival">Lun–Ven 9–17 <span class="bdg bno">❌ Chiusa sab/dom</span></div></div></div>
+      <div class="irow"><span class="iico">📞</span><div><div class="ilbl">Tel</div><div class="ival"><a href="tel:+4965313091">+49 6531 3091</a></div></div></div>
+      <div class="irow"><span class="iico">🌐</span><div><div class="ilbl">Sito</div><div class="ival"><a href="https://www.jjpruem.com" target="_blank">jjpruem.com</a></div></div></div>
+    </div>
+  </div>
+
+  <div class="urg"><div class="urg-h"><div class="udot up2"></div><div class="utxt"><div class="uname">Von Othegraven</div><div class="usub">Priorità 2 · ven 9–17 o sab 12–18</div></div><div class="uarr">›</div></div>
+    <div class="urg-b">
+      <div class="irow"><span class="iico">📍</span><div><div class="ilbl">Dove</div><div class="ival">Weinstraße 1, Kanzem (Saar)</div></div></div>
+      <div class="irow"><span class="iico">🗓</span><div><div class="ilbl">Apertura</div><div class="ival">Lun–Ven 9–17 · Sab 12–18 <span class="bdg bok">✓ Ven o Sab ok</span></div></div></div>
+      <div class="irow"><span class="iico">📞</span><div><div class="ilbl">Tel</div><div class="ival"><a href="tel:+496501150042">+49 6501 150042</a></div></div></div>
+      <div class="irow"><span class="iico">🌐</span><div><div class="ilbl">Sito</div><div class="ival"><a href="https://www.von-othegraven.de" target="_blank">von-othegraven.de</a></div></div></div>
+    </div>
+  </div>
+
+  <div class="urg"><div class="urg-h"><div class="udot up3"></div><div class="utxt"><div class="uname">Fritz Haag</div><div class="usub">Priorità 3 · sabato ~10:00</div></div><div class="uarr">›</div></div>
+    <div class="urg-b">
+      <div class="irow"><span class="iico">📍</span><div><div class="ilbl">Dove</div><div class="ival">Dusemonder Str. 44, Brauneberg</div></div></div>
+      <div class="irow"><span class="iico">✉️</span><div><div class="ilbl">Email</div><div class="ival"><a href="mailto:info@weingut-fritz-haag.de">info@weingut-fritz-haag.de</a></div></div></div>
+      <div class="irow"><span class="iico">📞</span><div><div class="ilbl">Tel</div><div class="ival"><a href="tel:+496534410">+49 6534 410</a></div></div></div>
+    </div>
+  </div>
+
+  <div class="urg"><div class="urg-h"><div class="udot up4"></div><div class="utxt"><div class="uname">Dr. Loosen</div><div class="usub">Priorità 4 · sabato ~13:30</div></div><div class="uarr">›</div></div>
+    <div class="urg-b">
+      <div class="irow"><span class="iico">📍</span><div><div class="ilbl">Dove</div><div class="ival">St. Johannishof, B53, Bernkastel</div></div></div>
+      <div class="irow"><span class="iico">✉️</span><div><div class="ilbl">Email</div><div class="ival"><a href="mailto:info@drloosen.de">info@drloosen.de</a></div></div></div>
+      <div class="irow"><span class="iico">📞</span><div><div class="ilbl">Tel</div><div class="ival"><a href="tel:+4965313426">+49 6531 3426</a></div></div></div>
+    </div>
+  </div>
+
+  <div style="background:#ECFDF5;border-radius:10px;padding:11px 14px;font-size:13px;color:#065F46;margin-top:4px">
+    <strong>Markus Molitor</strong> — aperta tutti i giorni 10–17, nessuna urgenza 🎉<br>
+    <a href="tel:+496532954000" style="color:#065F46">+49 6532 954000</a> · <a href="https://markusmolitor.com" target="_blank" style="color:#065F46">markusmolitor.com</a>
+  </div>
+
+  <div class="tips" style="margin-top:8px">
+    <div style="font-size:13px;font-weight:600;margin-bottom:10px">Note pratiche 📝</div>
+    <div class="tip"><span>🍷</span><span>Borsa termica o scatola da vino — le bottiglie si accumulano.</span></div>
+    <div class="tip"><span>✈</span><span>Bottiglie in stiva, imballatele bene.</span></div>
+    <div class="tip"><span>🚗</span><span>Chi guida usa lo spittoon — controlli sulla B53.</span></div>
+    <div class="tip"><span>📱</span><span>Scaricate Maps offline: copertura 4G scarsa in valle.</span></div>
+  </div>
+</div>
+
+<div class="footer">🍷 Mosella Wine Tour · 2025 · Traben-Trarbach</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// Attendo che Leaflet sia caricato
+window.addEventListener('load', function() {
+
+var map = null;
+var marker = null;
+var selCard = null;
+var selDrv  = null;
+
+function initMap(lat, lon, zoom) {
+  if (!map) {
+    map = L.map('leafmap', {zoomControl:true, attributionControl:false});
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom:19}).addTo(map);
+  }
+  map.setView([+lat, +lon], +zoom);
+  if (marker) map.removeLayer(marker);
+  marker = L.marker([+lat, +lon]).addTo(map);
+  setTimeout(function(){ map.invalidateSize(); }, 200);
+}
+
+function showPv(name, loc, lat, lon, zoom, p0, p1, cap) {
+  document.getElementById('pvName').textContent = name;
+  document.getElementById('pvLoc').textContent  = loc;
+
+  var prow = document.getElementById('prow');
+  prow.innerHTML = '';
+  var imgs = [p0, p1].filter(function(u){ return u && u.length > 5; });
+  if (!imgs.length) {
+    prow.innerHTML = '<div class="pno">Nessuna foto per questo tragitto 🚗</div>';
+  } else {
+    imgs.forEach(function(url) {
+      var d = document.createElement('div');
+      d.className = 'pthumb';
+      var i = document.createElement('img');
+      i.src = url;
+      i.alt = name;
+      i.onerror = function(){ d.style.display='none'; };
+      d.appendChild(i);
+      prow.appendChild(d);
+    });
+  }
+  document.getElementById('pcap').textContent = cap || '';
+
+  // Mostra panel e resetta su tab mappa
+  var pv = document.getElementById('pv');
+  pv.classList.add('on');
+  document.getElementById('ptab-map').classList.add('on');
+  document.getElementById('ptab-photos').classList.remove('on');
+  document.getElementById('ppane-map').classList.add('on');
+  document.getElementById('ppane-photos').classList.remove('on');
+
+  setTimeout(function(){
+    initMap(lat, lon, zoom);
+    pv.scrollIntoView({behavior:'smooth', block:'nearest'});
+  }, 80);
+}
+
+function hidePv() {
+  document.getElementById('pv').classList.remove('on');
+}
+
+// Helper: aggiungi listener touch+click senza doppio fuoco
+function tap(el, fn) {
+  var touching = false;
+  el.addEventListener('touchstart', function(){ touching = true; }, {passive:true});
+  el.addEventListener('touchend', function(e){
+    if (!touching) return;
+    touching = false;
+    e.preventDefault();
+    fn.call(el, e);
+  }, {passive:false});
+  el.addEventListener('click', function(e){
+    if (touching) return; // già gestito da touchend
+    fn.call(el, e);
+  });
+}
+
+// CARDS
+document.querySelectorAll('.card').forEach(function(card) {
+  tap(card.querySelector('.card-h'), function() {
+    var same = selCard === card;
+    if (selCard) {
+      selCard.classList.remove('on');
+      selCard.querySelector('.card-b').classList.remove('on');
+      selCard.querySelector('.carr').style.transform = '';
+    }
+    if (selDrv) { selDrv.classList.remove('on'); selDrv = null; }
+    if (same) { selCard = null; hidePv(); return; }
+    card.classList.add('on');
+    card.querySelector('.card-b').classList.add('on');
+    card.querySelector('.carr').style.transform = 'rotate(90deg)';
+    selCard = card;
+    var d = card.dataset;
+    showPv(d.name, d.loc, d.lat, d.lon, d.zoom, d.p0||'', d.p1||'', d.cap||'');
+  });
+});
+
+// DRIVE BUTTONS
+document.querySelectorAll('.drv-b').forEach(function(btn) {
+  tap(btn, function() {
+    var same = selDrv === btn;
+    if (selCard) {
+      selCard.classList.remove('on');
+      selCard.querySelector('.card-b').classList.remove('on');
+      selCard.querySelector('.carr').style.transform = '';
+      selCard = null;
+    }
+    if (selDrv) { selDrv.classList.remove('on'); }
+    if (same) { selDrv = null; hidePv(); return; }
+    btn.classList.add('on');
+    selDrv = btn;
+    var d = btn.dataset;
+    showPv(d.name, d.loc, d.lat, d.lon, d.zoom, d.p0||'', '', d.cap||'');
+  });
+});
+
+// DAY TABS
+['dt0','dt1','dt2'].forEach(function(id, idx) {
+  tap(document.getElementById(id), function() {
+    document.querySelectorAll('.dtab').forEach(function(t){ t.classList.remove('on'); });
+    document.querySelectorAll('.day').forEach(function(d){ d.classList.remove('on'); });
+    document.getElementById(id).classList.add('on');
+    document.getElementById('d'+idx).classList.add('on');
+    if (selCard) { selCard.classList.remove('on'); selCard.querySelector('.card-b').classList.remove('on'); selCard.querySelector('.carr').style.transform=''; selCard=null; }
+    if (selDrv)  { selDrv.classList.remove('on'); selDrv=null; }
+    hidePv();
+  });
+});
+
+// URGENTI
+document.querySelectorAll('.urg').forEach(function(u) {
+  tap(u.querySelector('.urg-h'), function(e) {
+    if (e && e.target && e.target.tagName === 'A') return;
+    var body = u.querySelector('.urg-b');
+    var arr  = u.querySelector('.uarr');
+    var open = body.classList.toggle('on');
+    arr.style.transform = open ? 'rotate(90deg)' : '';
+  });
+});
+
+// PREVIEW TABS
+tap(document.getElementById('ptab-map'), function() {
+  document.getElementById('ptab-map').classList.add('on');
+  document.getElementById('ptab-photos').classList.remove('on');
+  document.getElementById('ppane-map').classList.add('on');
+  document.getElementById('ppane-photos').classList.remove('on');
+  setTimeout(function(){ if(map) map.invalidateSize(); }, 100);
+});
+tap(document.getElementById('ptab-photos'), function() {
+  document.getElementById('ptab-photos').classList.add('on');
+  document.getElementById('ptab-map').classList.remove('on');
+  document.getElementById('ppane-photos').classList.add('on');
+  document.getElementById('ppane-map').classList.remove('on');
+});
+
+}); // end window.load
+</script>
+</body>
+</html>
